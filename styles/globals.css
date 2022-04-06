@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  html {
-    @apply bg-slate-900 text-slate-200 min-h-screen;
-  }
+html {
+  @apply bg-slate-900 text-slate-200 min-h-screen;
 }
