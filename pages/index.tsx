@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
+import PostItem from "@/components/PostItem"
 
 const Home: NextPage = () => {
   return (
@@ -16,8 +17,14 @@ const Home: NextPage = () => {
           <Image src="/grinning-cat-with-smiling-eyes.png" alt="home header image" width={100} height={100} />
         </div>
         <h1 className="text-3xl font-bold tracking-wide">
-          Oshin
+          Osin
         </h1>
+        <p className="text-sm text-slate-500 leading-loose">A software engineer</p>
+        <PostItem
+          emoji="👨🏻‍💻"
+          title="本サイトの技術スタック"
+          createdAt={new Date("2022/3/20")}
+        />
       </main>
 
       <footer>
