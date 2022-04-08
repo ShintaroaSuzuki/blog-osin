@@ -6,7 +6,7 @@ export default ({ emoji, title, createdAt }: { emoji: string; title: string; cre
       <span className="text-6xl">{emoji}</span>
       <div className="flex flex-col justify-center items-center gap-y-1">
         <h2 className="text-base">{title}</h2>
-        <span className="text-sm text-slate-500">{formatDistanceToNow(createdAt)}</span>
+        <span className="text-sm text-slate-500">{`${formatDistanceToNow(createdAt)} ago`}</span>
       </div>
     </div>
   )

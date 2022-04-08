@@ -20,11 +20,23 @@ const Home: NextPage = () => {
           Osin
         </h1>
         <p className="text-sm text-slate-500 leading-loose">A software engineer</p>
+        <div className="w-full flex flex-col items-center mt-10 gap-y-8">
         <PostItem
           emoji="👨🏻‍💻"
           title="本サイトの技術スタック"
           createdAt={new Date("2022/3/20")}
         />
+        <PostItem
+          emoji="👨🏻‍💻"
+          title="本サイトの技術スタック"
+          createdAt={new Date("2022/3/20")}
+        />
+        <PostItem
+          emoji="👨🏻‍💻"
+          title="本サイトの技術スタック"
+          createdAt={new Date("2022/3/20")}
+        />
+        </div>
       </main>
 
       <footer>
