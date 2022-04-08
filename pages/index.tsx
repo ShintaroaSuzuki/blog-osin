@@ -14,7 +14,7 @@ export const getStaticProps = async () => {
   }
 }
 
-const Home = ({ posts }: { posts: Post[] }) => {
+const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
   return (
     <div className="flex items-center flex-col min-h-screen">
       <Head>
@@ -36,6 +36,7 @@ const Home = ({ posts }: { posts: Post[] }) => {
           posts.map((post) => {
             return (
               <PostItem
+                key={post.id}
                 emoji={post.emoji}
                 title={post.title}
                 createdAt={post.createdAt}
