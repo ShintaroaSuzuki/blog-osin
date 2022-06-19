@@ -11,6 +11,9 @@ const withMDX = require("@next/mdx")({
 
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    outputStandalone: true,
+  },
 };
 
 module.exports = withMDX({

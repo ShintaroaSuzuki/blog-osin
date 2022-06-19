@@ -1,12 +1,18 @@
 import Head from "next/head";
 import PostItem from "@/components/PostItem";
-import { getAllPost } from "@/lib/getAllPost";
 import { Post } from "@/types";
+import fs from "fs";
 
 export const getStaticProps = async () => {
+  const posts: Post[] = [];
+  fs.readdirSync("./pages/posts").forEach(async (path) => {
+    let module = await import(`./posts/${path}`);
+    let pathname = path.replace(".mdx", "");
+    posts.push({ ...module.meta, id: pathname });
+  });
   return {
     props: {
-      posts: await getAllPost(),
+      posts,
     },
   };
 };
@@ -15,7 +21,7 @@ const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
   return (
     <div className="flex items-center flex-col min-h-screen">
       <Head>
-        <title>Osin.</title>
+        <title>Osin</title>
         <meta name="description" content="osin's personal website" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -38,8 +44,7 @@ const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
             posts.map((post) => {
               return (
                 <PostItem
-                  key={post.pathname}
-                  pathname={post.pathname}
+                  key={post.id}
                   emoji={post.emoji}
                   title={post.title}
                   createdAt={post.createdAt}
