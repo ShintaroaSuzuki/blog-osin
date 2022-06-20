@@ -67,7 +67,7 @@ const Post = ({ children }: { children: ReactChildren }) => {
 
 まずこのブログは Cloud Run で動かしているのですが、Vercel と同様に main ブランチにプッシュしたタイミングで、自動でデプロイするようにした方が開発体験が向上すると思います。
 
-事前準備として、GCP でサービスアカウントを作成し、鍵を生成します。それを base64 で暗号化し、それを GitHub の Repository Secrets に登録します。
+事前準備として、GCP でサービスアカウントを作成し、鍵を生成します。生成した鍵 json の中身を base64 でエンコードし、それを GitHub の Repository Secrets に登録します。
 
 ```
 cat credential.json | base64 | pbcopy
