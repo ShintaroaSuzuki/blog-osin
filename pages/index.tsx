@@ -2,6 +2,7 @@ import Head from "next/head";
 import PostItem from "@/components/PostItem";
 import { getAllPost } from "@/lib/getAllPost";
 import { Post } from "@/types";
+import Footer from "@/components/Footer";
 
 export const getStaticProps = async () => {
   return {
@@ -48,10 +49,7 @@ const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
             })}
         </div>
       </main>
-
-      <footer className="my-10">
-        <span className="text-sm text-slate-600">{`© ${new Date().getFullYear()} Osin.`}</span>
-      </footer>
+      <Footer />
     </div>
   );
 };

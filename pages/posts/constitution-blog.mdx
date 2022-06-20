@@ -80,4 +80,4 @@ cat credential.json | base64 | pbcopy
     credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 ```
 
-export default ({ children }) => <PostLayout>{children}</PostLayout>
+export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
