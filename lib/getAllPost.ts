@@ -8,5 +8,10 @@ export const getAllPost = async () => {
     let pathname = path.replace(".mdx", "");
     posts.push({ ...module.meta, pathname });
   });
+  posts.sort((a, b) => {
+    if (a.createdAt < b.createdAt) return 1;
+    if (a.createdAt > b.createdAt) return -1;
+    return 0;
+  });
   return posts;
 };
