@@ -21,7 +21,7 @@ const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="w-3/4 sm:w-1/2 min-h-screen">
+      <main className="w-3/4 sm:max-w-lg min-h-screen">
         <div className="flex flex-col items-center my-10 sm:my-10">
           <img
             src="/grinning-cat-with-smiling-eyes.png"
