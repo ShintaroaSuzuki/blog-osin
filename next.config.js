@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
+const rehypePrism = require("@mapbox/rehype-prism");
 const withMDX = require("@next/mdx")({
   extension: /\.mdx?$/,
   options: {
     remarkPlugins: [],
-    rehypePlugins: [],
+    rehypePlugins: [rehypePrism],
     // If you use `MDXProvider`, uncomment the following line.
     // providerImportSource: "@mdx-js/react",
   },
