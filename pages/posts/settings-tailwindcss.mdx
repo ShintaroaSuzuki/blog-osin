@@ -1,9 +1,124 @@
 import PostLayout from "@/components/posts/PostLayout"
+import TwitterButton from "@/components/posts/TwitterButton"
 
 export const meta = {
   title: 'Next.js に Tailwind CSS を一発で導入するコマンドを作成した話',
   createdAt: '2022-06-21',
   emoji: '💊 ',
 }
+
+# Next.js に Tailwind CSS を一発で導入するコマンドを作成した話
+
+## Next.js に Tailwind CSS を導入する方法
+
+Tailwind CSS の公式ドキュメント [Install Tailwind CSS with Next.js - Tailwind CSS](https://tailwindcss.com/docs/guides/nextjs) の通りなので、簡潔に手順をまとめるだけで済ませます。
+
+1. パッケージのインストール
+
+```
+yarn add -D tailwindcss postcss autoprefixer
+```
+
+2. Tailwind CSS の初期化
+
+```
+yarn tailwindcss init -p
+```
+
+3. `tailwind.config.js` の修正
+
+```js
+module.exports = {
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+4. `globals.css` の修正
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+これで Next.js で Tailwind CSS が使えるようになるのですが、4ステップを一度に実行できるシェルスクリプトを作ったので共有します。
+
+## 作ったコード
+
+最初に結論ですが、下記のコードを `~/.bashrc` なり `~/.zshrc` に記述しています。
+
+```shell
+function next-tailwind() {
+  if [ $# != 1 ]; then
+    echo "invalid auguments"
+    return 1
+  fi
+
+  case $1 in
+    init)
+      if [ ! -e "./next.config.js" ]; then
+        echo 'this directory is not next.js project'
+        return 1
+      fi
+
+      local CMD
+
+      CMD="yarn add -D tailwindcss postcss autoprefixer"
+      echo $CMD
+      eval $CMD
+
+      CMD="yarn tailwindcss init -p"
+      echo $CMD
+      eval $CMD
+
+      echo "update tailwind.config.js"
+      cp ~/.templates/tailwind.config.js ./tailwind.config.js
+
+      echo "update styles/globals.css"
+      cp ~/.templates/globals.css ./styles/globals.css
+
+      ;;
+    *)
+      echo "not found command: $1"
+      ;;
+  esac
+}
+```
+
+これにより、Next.js のプロジェクト内で下記のコマンドを実行すると、Tailwind CSS を一発で導入できるようになります。
+
+```
+next-tailwind init
+```
+
+ポイントは 2 つあります。
+
+1. カレントディレクトリが Next.js のプロジェクトのルートディレクトリかどうかを判定する
+2. `tailwind.config.js` , `globals.css` のテンプレートを用意しておく
+
+## カレントディレクトリが Next.js のプロジェクトのルートディレクトリかどうかを判定する
+
+Next.js のプロジェクトでは、`next.config.js` がルートディレクトリに存在しているはずなので、コマンド実行時にカレントディレクトリに `next.config.js` が存在しているかを確認することで、Next.js 以外のプロジェクトに誤って上記の手順で Tailwind CSS をインストールすることを防止しています。
+
+
+## `tailwind.config.js` , `globals.css` のテンプレートを用意しておく
+
+`tailwindcss.config.js` と `globals.css` のテンプレートを用意しておき、それをカレントディレクトリ配下にコピーすることで、修正するステップを自動化しています。新規プロジェクトに導入する際には問題ありませんが、既存のプロジェクトに上記の方法で Tailwind CSS を導入する場合には、`globals.css` の情報は完全に消去されてしまうので注意が必要です。
+
+## おわりに
+
+Tailwind CSS は少ないコードでスタイルを定義でき、可読性や開発効率が上がるだけでなく、一つのデザインシステムとしても機能しているため統一感が生まれるというのも利点だと考えており、推し技術の一つです。  
+上記の内容が Tailwind CSS ユーザーの参考になれば嬉しいですし、新しく Tailwind CSS を使ってみようと思ってもらえても嬉しいです。
+
+ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
+
+<TwitterButton />
 
 export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>

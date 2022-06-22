@@ -1,4 +1,5 @@
 import PostLayout from "@/components/posts/PostLayout"
+import TwitterButton from "@/components/posts/TwitterButton"
 
 export const meta = {
   title: 'Next.js + MDX をベースにしたブログの運用方法',
@@ -12,17 +13,86 @@ export const meta = {
 1. Next.js + MDX で自由度を高く保ちつつマークダウンで簡単に記事を追加していけるようにしています。
 2. GitHub Actions で Cloud Run へのデプロイも自動化しています。
 
-## Next.jsのSGを最大限に活用する(一覧ページを作る)
+## Next.js で MDX を使う
+
+公式ドキュメント [Advanced Features: Using MDX | Next.js](https://nextjs.org/docs/advanced-features/using-mdx) に書いてあるとおりですが、Next.js で MDX を使うところから記載します。
+
+まずは必要なパッケージをインストールします。
+
+```
+yarn add @next/mdx @mdx-js/loader
+```
+
+次に、 `.mdx` のファイルを使用するために、 `next.config.js` を修正します。
+
+```js
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: [],
+    // If you use `MDXProvider`, uncomment the following line.
+    // providerImportSource: "@mdx-js/react",
+  },
+})
+module.exports = withMDX({
+  // Append the default value with md extensions
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+})
+```
+
+以上で pages 配下の .mdx ファイルが使えるようになり、マークダウンを使って記事を書いていくことが可能です。
+
+## Next.jsのSGを恩恵を受けながら一覧ページを作る
 
 Next.jsの利点の一つにサーバーサイドレンダリングが挙げられます。ビルド時もしくはリクエスト時にHTML, CSSといった静的ファイルを生成する仕組みです。
 
 クライアントサイドでのレンダリングはクライアント側で保有している認証情報が使えるなどの利点がありますが、パフォーマンスがクライアントのマシンスペックに依存してしまったり、クローラーがページのコンテンツを認識しないためSEOに弱いという欠点があります。一方、サーバーサイドレンダリングを用いると、パフォーマンスやSEOに強いWebアプリを作ることが可能です。  
 実際にサーバーサイドレンダリングを使うと、大抵の場合lighthouseのスコアが顕著に上昇します。
 
-Next.jsでSGを使うには、getStaticPropsという関数をexportします。そうすることでページもしくはコンポーネントの静的ファイルがビルド時に生成されます。  
-getAllPostの内部では、拡張子が.mdxのファイルからexportされている記事のメタデータをすべて取得してリストとして返しています。
+Next.jsでSGを使うには、`getStaticProps` という関数をexportします。そうすることでページもしくはコンポーネントの静的ファイルがビルド時に生成されます。  
+本ブログでは、記事を追加するときは pages/posts/*.mdx というファイルを追加するという運用をしているため、記事一覧ページが更新されるべきタイミングは、ビルドのタイミングのみです。そのため SG を使って記事一覧ページを生成することとしています。
+`getAllPost` の内部では、拡張子が `.mdx` のファイルからexportされている記事のメタデータをすべて取得してリストとして返しています。
+
+```js
+// pages/posts/*.mdx
+export const meta = { ... }
+
+# マークダウン
+
+テキスト
+```
 
 ```ts
+// lib/getAllPost.ts
+import fs from "fs";
+import { Post } from "@/types";
+
+export const getAllPost = async () => {
+  const posts: Post[] = [];
+  const paths = fs.readdirSync("./pages/posts");
+  let importProcessed = 0;
+  paths.forEach(async (path) => {
+    let module = await import(`../pages/posts/${path}`);
+    let pathname = path.replace(".mdx", "");
+    posts.push({ ...module.meta, pathname });
+    importProcessed++;
+    if (importProcessed == paths.length) {
+      posts.sort((a, b) => {
+        if (a.createdAt > b.createdAt) return -1;
+        return 1;
+      });
+    }
+  });
+  return posts;
+};
+```
+
+
+```tsx
+// pages/index.tsx
+import { getAllPost } from "@/lib/getAllPost"
+
 export const getStaticProps = async () => {
   return {
     props: {
@@ -34,7 +104,7 @@ export const getStaticProps = async () => {
 
 ## Tailwind CSS でマークダウンにスタイルをあてる
 
-正確には @taiwindcss/typography というプラグインを用いています。
+正確には `@taiwindcss/typography` というプラグインを用いています。
 
 まずはライブラリを追加します。
 
@@ -42,7 +112,7 @@ export const getStaticProps = async () => {
 yarn add @tailwindcss/typography
 ```
 
-インストールが終わり次第、tailwindcss.config.js に下記のコードを追加するだけで使用することが可能です。
+インストールが終わり次第、 `tailwindcss.config.js` に下記のコードを追加するだけで使用することが可能です。
 
 ```js
 module.exports = {
@@ -51,7 +121,7 @@ module.exports = {
 }
 ```
 
-className="prose" を指定すると、マークダウンにスタイルをあてることが可能です。
+`className="prose"` を指定すると、マークダウンにスタイルをあてることが可能です。
 
 ```tsx
 const Post = ({ children }: { children: ReactChildren }) => {
@@ -73,7 +143,7 @@ const Post = ({ children }: { children: ReactChildren }) => {
 cat credential.json | base64 | pbcopy
 ```
 
-これを .github/workflows/*.yml から参照して Google Cloud CLI を認証し、Cloud Run へのデプロイを行います。
+これを `.github/workflows/*.yml` から参照して Google Cloud CLI を認証し、Cloud Run へのデプロイを行います。
 
 ```yaml
 - name: auth
@@ -81,5 +151,13 @@ cat credential.json | base64 | pbcopy
   with:
     credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 ```
+
+## おわりに
+
+Next.jsでブログを作る際に参考にしていただけると嬉しいです。
+
+ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
+
+<TwitterButton />
 
 export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
