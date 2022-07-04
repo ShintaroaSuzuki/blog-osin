@@ -1,0 +1,208 @@
+import PostLayout from "@/components/posts/PostLayout"
+import TwitterButton from "@/components/posts/TwitterButton"
+
+export const meta = {
+  title: 'NestJS & GraphQL & Prisma を使った爆速GraphQLサーバー構築方法',
+  createdAt: '2022-07-04',
+  emoji: '🗼 ',
+}
+
+# NestJS & GraphQL & Prisma を使った爆速GraphQLサーバー構築方法 
+
+**📍 Point**
+1. prisma-mergeでPrismaスキーマを分割管理できるようにする
+2. prisma-nestjs-graphqlでPrismaスキーマから型定義ファイルを自動生成する
+3. シェルスクリプトで model を定義しているファイルを一括で移動する
+4. NestJSのCLIで module, resolver, service を作成する
+
+## prisma-mergeを使って、Prismaスキーマを分割して管理する
+
+prismaスキーマは下記の構成で分割しています。
+
+```
+.
+└── prisma/
+    ├── models/
+    │   ├── user.prisma
+    │   └── post.prisma
+    └── base.prisma
+```
+
+`base.prisma` にはPrismaの設定を、`models/*.prisma` にはモデルの定義を記述するようにしています。
+
+```
+// base.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+```
+
+```
+// models/*.prisma
+
+model User {
+  id          String   @id
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  avatar      String
+  posts       Post[]
+}
+```
+
+下記のコマンドを実行すると、`prisma/base.prisma` と `prisma/**/*.prisma` を読み込んで、`prisma/schema.prisma` を生成できます。
+
+```shell
+yarn prisma-merge -b prisma/base.prisma -s 'prisma/**/*.prisma' -o prisma/schema.prisma
+```
+
+自分は `package.json` でスクリプトを定義して、`yarn merge:prisma` だけで随時Prismaスキーマの生成ができるようにしています。
+
+```json
+{
+  ...,
+  "scripts": {
+    ...,
+    "merge:prisma": "yarn prisma-merge -b prisma/base.prisma -s 'prisma/**/*.prisma' -o prisma/schema.prisma"
+  },
+}
+```
+
+また、DBへのプッシュも忘れずないように。
+
+```shell
+yarn prisma db push
+```
+
+## prisma-nestjs-graphqlを使って、Prismaスキーマから型定義ファイルを生成する
+
+prisma-nestjs-graphql を使うと、`schema.prisma` からGraphQLのコードファーストアプローチで用いるTypeScriptファイルを自動生成できます。
+
+```shell
+yarn add prisma-nestjs-graphql class-transformer
+```
+
+`base.prisma` に下記のコードを追加します。
+
+```
+generator nestgraphql {
+  provider = "prisma-nestjs-graphql"
+  output  = "../src/@generated/prisma-nestjs-graphql"
+}
+```
+
+そして、`yarn merge:prisma` で `schema.prisma` を生成後、`yarn prisma generate` を実行すると、`src/@generated/prisma-nestjs-graphql` 以下にファイルが生成されます。
+
+```shell
+yarn merge:prisma
+yarn prisma generate
+```
+
+## シェルスクリプトで *.model.ts を移動させる
+
+まず、生成したTypeScriptファイルが多いので、`src/@generated` 以下を `.gitignore` に追加します。
+
+```shell
+echo "src/@generated/*" >> .gitignore
+```
+
+その後、`src/@generated/prisma-nestjs-graphql/*/*.model.ts` を移動するディレクトリを作成します。  
+`src/@generated/prisma-nestjs-graphql/*/*.model.ts` に該当するパスを出力し、そのパスを加工して、`mkdir` に渡し、ディレクトリを作成します。
+
+```shell
+ls src/@generated/prisma-nestjs-graphql/*/*.model.ts | sed 's/src\/\@generated\/prisma-nestjs-graphql\///g' | sed 's/\/.*//g' | xargs -I {} sh -c 'mkdir src/{}'
+```
+移動先のディレクトリを作成したら、
+
+
+```shell
+ls src/@generated/prisma-nestjs-graphql/*/*.model.ts | sed 's/src\/\@generated\/prisma-nestjs-graphql\///g' | xargs -I {} sh -c 'cp src/@generated/prisma-nestjs-graphql/{} src/{}'
+```
+
+Prismaスキーマを変更するたびに、上記の長いスクリプトを書くのは面倒なので、シェルスクリプトに追加します。  
+`~/.zshrc` に下記のコードを追加して、シェルで `copy-prisma-model` を実行すると上記のスクリプトが走るようにしています。
+
+```shell
+function copy-prisma-model() {
+  # model.tsの移動
+  echo "make folder"
+  ls src/@generated/prisma-nestjs-graphql/*/*.model.ts | sed 's/src\/\@generated\/prisma-nestjs-graphql\///g' | sed 's/\/.*//g' | xargs -I {} sh -c 'mkdir src/{}'
+  echo "copy model.ts"
+  ls src/@generated/prisma-nestjs-graphql/*/*.model.ts | sed 's/src\/\@generated\/prisma-nestjs-graphql\///g' | xargs -I {} sh -c 'cp src/@generated/prisma-nestjs-graphql/{} src/{}'
+}
+```
+
+## NestJS のCLIで module, resolver, service を作成する
+
+module を作成
+
+```shell
+yarn nest generate module user
+```
+
+resolver を作成
+
+```shell
+yarn nest generate resolver user
+```
+
+service を作成
+
+```shell
+yarn nest generate service user
+```
+
+`src/user/user.resolver.ts` を修正
+
+```ts
+import { Query, Resolver } from '@nestjs/graphql';
+import { User } from './user.model';
+import { UserService } from './user.service';
+
+@Resolver()
+export class UserResolver {
+  constructor(private userService: UserService) {}
+
+  @Query(() => [User], { nullable: 'items' })
+  users() {
+    return this.userService.getUsers();
+  }
+}
+```
+
+`src/user/user.service.ts` を修正
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { User } from './user.model';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+@Injectable()
+export class UserService {
+  async getUsers(): Promise<User[]> {
+    const result = await prisma.user.findMany({ include: { concerts: true } });
+    return result;
+  }
+}
+```
+
+## おわりに
+
+以上で一通りNestJS + Prisma + GraphQL の構成でサーバーを建てることができているはずです。  
+NestJSを使ってGraphQLサーバーを建てるときの参考にしていただけると幸いです。
+
+ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
+
+<TwitterButton />
+
+export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
