@@ -2,17 +2,110 @@ import PostLayout from "@/components/posts/PostLayout"
 import TwitterButton from "@/components/posts/TwitterButton"
 
 export const meta = {
-  title: 'タイトル',
-  createdAt: '2022-07-04',
-  emoji: '🦔 ',
+  title: 'GraphQL Code Generator で Query / Mutation の Hooks を自動生成する',
+  createdAt: '2022-07-05',
+  emoji: '🧬 ',
 }
 
-# タイトル
+# GraphQL Code Generator で Query / Mutation の Hooks を自動生成する
 
 **📍 Point**
-1. ポイント1
+1. CSR と SSR/SG/ISR で使い分ける
+2. .envファイルを読み込む
 
-## 見出し
+## パッケージのインストール
+
+CSR か SSR/SG/ISR に関わらず使うパッケージ
+
+```shell
+yarn add graphql
+yarn add -D @graphql-codegen/cli @graphql-codegen/typescript @graphql-codegen/typescript-operations @graphql-codegen/near-operation-file-preset
+```
+
+CSR の場合に用いるパッケージ
+
+```shell
+yarn add @apollo/client
+yarn add -D @graphql-codegen/typescript-react-apollo
+```
+
+SSR/SG/ISR の場合に用いるパッケージ
+
+```shell
+yarn add graphql-request
+yarn add -D @graphql-codegen/typescript-graphql-request @graphql-codegen/import-types-preset
+```
+
+## 設定ファイルを作成
+
+`.env` に GraphQL のエンドポイントを入れます。
+
+```
+GRAPHQL_ENDPOINT=<<YOUR_GRAPHQL_ENDPOINT>>
+```
+
+ルート直下に `codegen.yml` を作成します。
+
+```yaml
+overwrite: true
+schema: ${GRAPHQL_ENDPOINT}
+documents: "src/graphql/**/*.graphql"
+generates:
+  src/graphql/types.ts:
+    plugins:
+      - "typescript"
+  src/graphql/:
+    preset: near-operation-file
+    presetConfig:
+      extension: .generated.tsx
+      baseTypesPath: types.ts
+    plugins:
+      - "typescript-operations"
+      - "typescript-react-apollo"
+  # 下記はSSR/SG/ISRを使う場合のみ
+  src/graphql/ssr.generated.ts:
+    preset: import-types
+    presetConfig:
+      typesPath: "./types"
+    plugins:
+      - "typescript-operations"
+      - "typescript-graphql-request"
+```
+
+`package.json` にスクリプトを追加します。  
+`--require dotenv/config` を追加することで、`.env` ファイルを参照できます。
+
+```json
+{
+  ...,
+  "scripts": {
+    ...,
+    "codegen": "graphql-codegen --require dotenv/config"
+  },
+}
+```
+
+## GraphQL のクエリを作成
+
+`src/**/*.graphql` を作成します。
+
+```graphql
+query getUser($id: ID!) {
+  user(id: $id) {
+      id
+      name
+    }
+}
+```
+
+## 実行
+
+下記のコマンドを実行すると、`src/**/*.graphql` の Query もしくは Mutation のHooksを自動生成してくれます。  
+型定義ファイルも同時に自動生成してくれるので、GraphQL のAPI通信がかなり快適になります。
+
+```shell
+yarn codegen
+```
 
 ## おわりに
 
