@@ -3,7 +3,6 @@ import type { ReactChildren } from "react";
 import { Post } from "@/types";
 import Footer from "@/components/Footer";
 import useSWR from "swr";
-import Loader from "@/components/Loader";
 
 const PostLayout = ({
   children,

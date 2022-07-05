@@ -10,6 +10,7 @@ env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_REGION: ${{ secrets.GCP_REGION }}
   IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}
+  ENDPOINT: ${{ secrets.ENDPOINT }}
 
 jobs:
   deploy-to-cloud-run:
@@ -43,4 +44,5 @@ jobs:
               --region $GCP_REGION \
               --platform=managed \
               --allow-unauthenticated \
+              --set-env-vars="ENDPOINT=$ENDPOINT"
               --quiet
