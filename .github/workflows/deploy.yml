@@ -44,5 +44,5 @@ jobs:
               --region $GCP_REGION \
               --platform=managed \
               --allow-unauthenticated \
-              --set-env-vars="ENDPOINT=$ENDPOINT"
+              --set-env-vars="ENDPOINT=$ENDPOINT" \
               --quiet
