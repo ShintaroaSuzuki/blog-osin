@@ -15,11 +15,13 @@ const PostLayout = ({
     <div className="flex flex-col items-center w-full">
       <Head>
         <title>{`${meta.title} | Osin.`}</title>
+        <meta name="description" content={meta.description} />
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-tomorrow.min.css"
         />
         <meta property="og:title" content={`Osin. | ${meta.title}`} />
+        <meta property="og:description" content={meta.description} />
         <meta
           property="og:image"
           content={`https://blog-osin-ogp-generator-xfcrhq2qba-an.a.run.app/?title=${encodeURIComponent(
