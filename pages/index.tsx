@@ -12,12 +12,28 @@ export const getStaticProps = async () => {
   };
 };
 
+const DOMAIN =
+  process.env.NODE_ENV === "production"
+    ? "https://osin.me"
+    : "http://localhost:3000";
+
 const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
   return (
     <div className="flex items-center flex-col min-h-screen">
       <Head>
         <title>Osin.</title>
-        <meta name="description" content="osin's personal website" />
+        <meta
+          name="description"
+          content="旧帝飛び級リードエンジニアの気まぐれ技術ブログです"
+        />
+        <meta property="og:title" content="Osin." />
+        <meta
+          property="og:description"
+          content="旧帝飛び級リードエンジニアの気まぐれ技術ブログです"
+        />
+        <meta property="og:image" content={`${DOMAIN}/top-ogp.png`} />
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
