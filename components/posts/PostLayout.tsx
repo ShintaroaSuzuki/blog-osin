@@ -22,9 +22,9 @@ const PostLayout = ({
         <meta property="og:title" content={`Osin. | ${meta.title}`} />
         <meta
           property="og:image"
-          content={encodeURI(
-            `https://blog-osin-ogp-generator-xfcrhq2qba-an.a.run.app/?title=${meta.title}`
-          )}
+          content={`https://blog-osin-ogp-generator-xfcrhq2qba-an.a.run.app/?title=${encodeURIComponent(
+            meta.title
+          )}`}
         />
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary_large_image" />
