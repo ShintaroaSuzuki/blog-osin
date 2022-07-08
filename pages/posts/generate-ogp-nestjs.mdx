@@ -1,0 +1,240 @@
+import PostLayout from "@/components/posts/PostLayout"
+import TwitterButton from "@/components/posts/TwitterButton"
+
+export const meta = {
+  title: 'NestJS + node-canvas でOGP画像を自動生成する',
+  description: 'OGP画像の自動生成のためのNestJSアプリを作ります。',
+  createdAt: '2022-07-08',
+  emoji: '🌃 ',
+}
+
+# NestJS + node-canvas でOGP画像を自動生成する
+
+**📍 Point**
+1. ダウンロードした日本語フォントを使用する
+2. クエリパラメータをURLエンコードする
+
+## 大まかな構成
+
+クエリパラメータを渡して画像を返すアプリを NestJS で作成し、それを Cloud Run にデプロイします。
+
+デプロイ先のエンドポイントをフロントエンド側の meta タグに指定することで、OGP画像の自動生成を実現します。
+
+## 環境構築
+
+まず NestJS のプロジェクトを作成します。
+
+```shell
+npx @nestjs/cli new ogp-generator
+```
+
+作成したプロジェクトに移動し、必要なパッケージをインストールします。
+
+```shell
+yarn add canvas
+```
+
+## 背景画像の作成
+
+Figmaなどのアプリを用いて、W:1200px, H:630pxで背景画像を作成します。
+
+## 日本語フォントのダウンロード
+
+今回はデプロイ先は Cloud Run を想定しており、 Dockerfile は以下のようになっています。
+
+```docker
+FROM node:16
+WORKDIR /app
+COPY package.json ./
+COPY tsconfig.json ./
+COPY tsconfig.build.json ./
+COPY src ./src
+COPY images ./images
+COPY fonts ./fonts
+RUN yarn install
+RUN yarn build
+CMD ["yarn", "start:prod"]
+```
+
+`node:16` のイメージには日本語フォントがデフォルトで入っていないので、そのまま日本語を使うと文字化けしてしまいます。
+
+そのため、日本語フォントをあらかじめダウンロードしておき、それをコンテナに渡すということをしています。
+
+## Controller
+
+クエリパラメータを受け取って、画像を返したいので、`src/app.controller.ts` を次のように書き換えます。
+
+```ts
+import {
+  Controller,
+  Get,
+  Res,
+  Query,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { Response } from 'express';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  async generate(
+    @Query()
+    query: {
+      title: string;
+    },
+
+    @Res()
+    res: Response,
+  ) {
+    if (!query)
+      throw new HttpException('parameter is missing', HttpStatus.BAD_REQUEST);
+    try {
+      res.send(await this.appService.generate(query.title));
+    } catch (e) {
+      throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+}
+```
+
+## Service
+
+`node-canvas` を使って画像を返す関数を作成します。
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { createCanvas, registerFont, loadImage } from 'canvas';
+import * as path from 'path';
+
+@Injectable()
+export class AppService {
+  async generate(title: string): Promise<Buffer> {
+    try {
+      const splitByMeasureWidth = (
+        str: string,
+        maxWidth: number,
+        context: CanvasRenderingContext2D,
+      ): string[] => {
+        const lines: string[] = [];
+        let line: string = '';
+        str.split('').forEach((char) => {
+          line += char;
+          if (context.measureText(line).width > maxWidth) {
+            lines.push(line.slice(0, -1));
+            line = line.slice(-1);
+          }
+        });
+        lines.push(line);
+        return lines;
+      };
+
+      const generateOgp = async (title: string) => {
+        const CANVAS_WIDTH = 1200;
+        const CANVAS_HEIGHT = 630;
+        const BACKGROUND_IMAGE_PATH = path.join(
+          __dirname,
+          '..',
+          'images',
+          'background.png',
+        );
+        const FONT_COLOR = '#000000';
+        const FONT_SIZE = 48;
+        const LINE_MARGIN_SIZE = 20;
+        const MARGIN_X = 240;
+        const MARGIN_TOP = 320;
+        const FONT_FAMILY = 'Noto Sans JP Medium';
+        const FONT_PATH = path.join(
+          __dirname,
+          '..',
+          'fonts',
+          'NotoSansJP-Medium.otf',
+        );
+
+        registerFont(FONT_PATH, { family: FONT_FAMILY });
+
+        const canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+        const ctx = canvas.getContext('2d');
+
+        const background = await loadImage(BACKGROUND_IMAGE_PATH);
+        ctx.drawImage(background, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
+        ctx.fillStyle = FONT_COLOR;
+        const titleLines: string[] = splitByMeasureWidth(
+          title,
+          CANVAS_WIDTH - MARGIN_X,
+          ctx,
+        );
+        let lineY: number = MARGIN_TOP;
+        titleLines.forEach((line: string) => {
+          const textWidth: number = ctx.measureText(line).width;
+          ctx.fillText(line, (CANVAS_WIDTH - textWidth) / 2, lineY);
+          lineY += FONT_SIZE + LINE_MARGIN_SIZE;
+        });
+
+        return canvas.toBuffer('image/png');
+      };
+
+      return await generateOgp(title);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+}
+```
+
+自分は上から 320px のところから1行目が始まるようにしていますが、画面中央にテキストを配置したい場合は、下記のように設定するとよいです。
+
+```ts
+let lineY: number =
+  (CANVAS_HEIGHT + FONT_SIZE) / 2 -
+  ((FONT_SIZE + LINE_MARGIN_SIZE) / 2) * (titleLines.length - 1);
+```
+
+## Cloud Run にデプロイ
+
+Cloud Run の詳細については割愛しますが、gcloud CLI の設定が済んでいれば、下記のコマンドでデプロイできます。
+
+```shell
+gcloud run deploy SERVICE_NAME --region REGION_NAME --allou-unauthenticated --source .
+```
+
+## URLエンコード
+
+このままフロントエンド側で下記のように meta タグを設定すれば、OGP画像は表示されますが、まだ致命的なバグを含んでいます。
+
+```tsx
+<meta property="og:image" contest={`https://hogehoge.app/？title=${title}`} />
+```
+
+クエリパラメータにURLの予約文字 ( `?` や `+` など) が含まれていると、テキストが想定通りに表示されません。
+
+そのため、クエリパラメータを予めURLエンコードする必要があり、そのために `encodeURIComponent` というグローバル関数を使用します。
+
+> `encodeURI` と `encodeURIComponent` はどちらもJavaScriptのグローバル関数であり、エスケープシーケンスへのエンコードしますが、予約文字をエンコードするかしないかという違いがあります。
+`encodeURI` は予約文字をエンコードしないのに対し、`encodeURIComponent` は予約文字もエンコードします。  
+現在発生しているバグは、予約文字をエンコードしていないことが原因なので、後者の `encodeURIComponent` を用いて、URLエンコードを行います。
+
+
+```tsx
+<meta property="og:image" contest={`https://hogehoge.app/？title=${encodeURIComponent(title)}`} />
+```
+
+これで予約文字が正しく表示されないというバグが解消されます。
+
+ソースコードはこちらになります。
+[ShintaroaSuzuki/blog-osin-ogp-generator](https://github.com/ShintaroaSuzuki/blog-osin-ogp-generator)
+
+## おわりに
+
+背景画像さえ変えればどんなサービスでも上記のコードを使いまわしてOGP画像の自動生成ができると思います。
+
+ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
+
+<TwitterButton />
+
+export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
