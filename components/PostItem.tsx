@@ -10,7 +10,7 @@ const PostItem = ({
   createdAt,
 }: { key: string } & Post) => {
   return (
-    <Link href={`./posts/${pathname}`} passHref key={key}>
+    <Link href={`/posts/${pathname}`} passHref key={key}>
       <div className="flex flex-col justify-between items-center bg-slate-800 rounded-lg p-5 h-44 w-full">
         <span className="text-5xl">{emoji}</span>
         <div className="flex flex-col justify-center items-center gap-y-1">

@@ -1,13 +1,13 @@
 import Head from "next/head";
 import PostItem from "@/components/PostItem";
-import { getAllPost } from "@/lib/getAllPost";
+import { getAllPosts } from "@/lib/getData";
 import { Post } from "@/types";
 import Footer from "@/components/Footer";
 
 export const getStaticProps = async () => {
   return {
     props: {
-      posts: await getAllPost(),
+      posts: await getAllPosts(),
     },
   };
 };
