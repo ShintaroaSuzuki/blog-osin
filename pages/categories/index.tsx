@@ -1,6 +1,8 @@
 import Head from "next/head";
 import Link from "next/link";
+import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CategoryItem from "@/components/CategoryItem";
 import { getCategory } from "@/lib/getData";
 import { Category } from "@/types";
 
@@ -14,24 +16,19 @@ export const getStaticProps = async () => {
 
 const Page = ({ categories }: { categories: Category[] }) => {
   return (
-    <div>
+    <>
       <Head>
         <title>Osin.</title>
       </Head>
-      {categories &&
-        categories.map((category: Category) => {
-          return (
-            <div
-              key={category.categoryName}
-              className="flex justify-between mx-20 my-10"
-            >
-              <p>{category.categoryName}</p>
-              <p>{category.articleCount}</p>
-            </div>
-          );
-        })}
+      <Header />
+      <div className="flex flex-col items-center w-full pt-16 min-h-screen gap-y-4 ">
+        {categories &&
+          categories.map((category: Category) => {
+            return <CategoryItem category={category} key={`${category}`} />;
+          })}
+      </div>
       <Footer />
-    </div>
+    </>
   );
 };
 

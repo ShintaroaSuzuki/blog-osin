@@ -46,7 +46,11 @@ const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
             height={100}
           />
         </div>
-        <h1 className="text-3xl font-bold tracking-wide">Osin.</h1>
+        <h1>
+          <span className="text-3xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500">
+            Osin.
+          </span>
+        </h1>
         <p className="text-sm text-slate-500 leading-loose">
           A software engineer
         </p>

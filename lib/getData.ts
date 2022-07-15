@@ -37,17 +37,18 @@ const pathToCategories = async (path: string, categories: Category[]) => {
   const module = await import(`../pages/posts/${path}`);
   for (let i = 0; i < module.meta.categories.length; i++) {
     await (async () => {
-      let category = module.meta.categories[i];
+      let categoryName = module.meta.categories[i];
+      let categoryPath = await categoryToPathname(categoryName);
       let categoryExists = false;
       for (let j = 0; j < categories.length; j++) {
-        if (categories[j].categoryName == category) {
+        if (categories[j].categoryName == categoryName) {
           categories[j].articleCount++;
           categoryExists = true;
           break;
         }
       }
       if (!categoryExists) {
-        categories.push({ categoryName: category, articleCount: 1 });
+        categories.push({ categoryName, categoryPath, articleCount: 1 });
       }
     })();
   }
