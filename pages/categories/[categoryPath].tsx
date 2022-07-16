@@ -61,7 +61,7 @@ const Page = ({ posts, category }: { posts: Post[]; category: string }) => {
     <>
       <Header />
       <div className="flex flex-col items-center pt-16">
-        <p className="my-8 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500">
+        <p className="mb-8 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500">
           {category}
         </p>
         <div className="w-3/4 flex flex-col items-center gap-y-8 min-h-screen">

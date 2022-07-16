@@ -3,6 +3,7 @@ import PostItem from "@/components/PostItem";
 import { getAllPosts } from "@/lib/getData";
 import { Post } from "@/types";
 import Footer from "@/components/Footer";
+import Navigation from "@/components/Navigation";
 
 export const getStaticProps = async () => {
   return {
@@ -46,14 +47,17 @@ const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
             height={100}
           />
         </div>
-        <h1>
+        <h1 className="mb-0.5">
           <span className="text-3xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500">
             Osin.
           </span>
         </h1>
-        <p className="text-sm text-slate-500 leading-loose">
-          A software engineer
-        </p>
+        <p className="text-sm text-slate-500">A software engineer</p>
+        <Navigation
+          title="Categories"
+          description="categories list of blog posts"
+          href="/categories"
+        />
         <div className="w-full flex flex-col items-center mt-10 gap-y-8">
           {posts &&
             posts.map((post) => {
