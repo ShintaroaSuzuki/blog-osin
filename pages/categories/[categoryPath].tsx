@@ -1,5 +1,4 @@
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from "next";
-import { useRouter } from "next/router";
 import { getCategoryPaths, getCategory, getCategoryPosts } from "@/lib/getData";
 import { CategoryPost, Post } from "@/types";
 import Header from "@/components/Header";
@@ -55,8 +54,6 @@ export const getStaticProps: GetStaticProps = async (
 };
 
 const Page = ({ posts, category }: { posts: Post[]; category: string }) => {
-  const router = useRouter();
-
   return (
     <>
       <Header />
@@ -65,14 +62,8 @@ const Page = ({ posts, category }: { posts: Post[]; category: string }) => {
           {category}
         </p>
         <div className="w-3/4 flex flex-col items-center gap-y-8 min-h-screen">
-          {posts.map((post) => (
-            <PostItem
-              key={post.pathname}
-              pathname={post.pathname}
-              emoji={post.emoji}
-              title={post.title}
-              createdAt={post.createdAt}
-            />
+          {posts.map((post, i) => (
+            <PostItem key={`post_${i}`} post={post} />
           ))}
         </div>
         <Footer />

@@ -18,7 +18,7 @@ const DOMAIN =
     ? "https://osin.me"
     : "http://localhost:3000";
 
-const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
+const Home = ({ posts }: { posts: Post[] }) => {
   return (
     <div className="flex items-center flex-col min-h-screen">
       <Head>
@@ -53,24 +53,17 @@ const Home = ({ posts }: { posts: ({ id: string } & Post)[] }) => {
           </span>
         </h1>
         <p className="text-sm text-slate-500">A software engineer</p>
-        <Navigation
-          title="Categories"
-          description="categories list of blog posts"
-          href="/categories"
-        />
-        <div className="w-full flex flex-col items-center mt-10 gap-y-8">
-          {posts &&
-            posts.map((post) => {
-              return (
-                <PostItem
-                  key={post.pathname}
-                  pathname={post.pathname}
-                  emoji={post.emoji}
-                  title={post.title}
-                  createdAt={post.createdAt}
-                />
-              );
-            })}
+        <div className="my-8">
+          <Navigation
+            title="New Posts"
+            description="recent posts"
+            href="/new-posts"
+          />
+          <Navigation
+            title="Categories"
+            description="categories list of blog posts"
+            href="/categories"
+          />
         </div>
       </main>
       <Footer />

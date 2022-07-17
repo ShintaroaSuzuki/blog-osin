@@ -22,6 +22,9 @@ const Page = ({ categories }: { categories: Category[] }) => {
       </Head>
       <Header />
       <div className="flex flex-col items-center w-full pt-16 min-h-screen gap-y-4 ">
+        <p className="mb-8 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500">
+          New Posts
+        </p>
         {categories &&
           categories.map((category: Category) => {
             return <CategoryItem category={category} key={`${category}`} />;

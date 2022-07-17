@@ -120,5 +120,5 @@ const pathToCategoryPosts = async (
 };
 
 const categoryToPathname = (category: string) => {
-  return category.replace(/[^0-9a-zA-Z]/g, "-");
+  return category.replace(/[^0-9a-zA-Z]/g, "-").toLowerCase();
 };
