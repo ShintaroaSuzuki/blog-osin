@@ -1,24 +1,15 @@
 import Head from "next/head";
-import PostItem from "@/components/PostItem";
 import { getAllPosts } from "@/lib/getData";
 import { Post } from "@/types";
 import Footer from "@/components/Footer";
 import Navigation from "@/components/Navigation";
-
-export const getStaticProps = async () => {
-  return {
-    props: {
-      posts: await getAllPosts(),
-    },
-  };
-};
 
 const DOMAIN =
   process.env.NODE_ENV === "production"
     ? "https://osin.me"
     : "http://localhost:3000";
 
-const Home = ({ posts }: { posts: Post[] }) => {
+const Home = () => {
   return (
     <div className="flex items-center flex-col min-h-screen">
       <Head>
@@ -63,6 +54,11 @@ const Home = ({ posts }: { posts: Post[] }) => {
             title="Categories"
             description="categories list of blog posts"
             href="/categories"
+          />
+          <Navigation
+            title="About Me"
+            description="self-introduction"
+            href="/about-me"
           />
         </div>
       </main>
