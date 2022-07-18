@@ -1,10 +1,17 @@
+import Head from "next/head"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+
+### 経歴
 
 北海道大学大学院経済学院修士課程を早期履修制度を利用して1年で修了。  
 SaaS系の事業会社に総合職として入社しましたが、エンジニアにジョブチェンジをし、現在は受託開発企業のリードエンジニアとして内定をいただいています。
 
+### スキル
+
 TypeScript でのアプリケーション開発を得意としており、Next.js + NestJS + GraphQL(Apollo) + Prisma の構成で Web アプリケーションを開発するのが好きです。GraphQL のクエリを呼ぶ Hooks やNestJSのエンティティを自動生成できて開発効率が高い点と、フロントエンドとバックエンドで型を共有できるので型安全である点で、このような構成にすることが多いです。
+
+### ビジョン
 
 早期に様々なプロジェクトの要件定義やアーキテクチャ選定等に携わり、高いレベルでアーキテクト兼プロジェクトマネージャーというポジションを確立したいです。
 
@@ -21,10 +28,13 @@ TypeScript でのアプリケーション開発を得意としており、Next.j
 export default ({ children }) => {
   return (
     <div className="flex flex-col items-center">
+      <Head>
+        <title>About Me | Osin.</title>
+      </Head>
       <Header />
       <article className="w-3/4 mt-16 prose prose-invert">
-        <h1>
-          <span className="mb-8 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500">
+        <h1 className="flex flex-col items-center">
+          <span className="mb-4 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500">
             About Me
           </span>
         </h1>

@@ -1,3 +1,4 @@
+import Head from "next/head";
 import { GetStaticProps } from "next";
 import { getAllPosts } from "@/lib/getData";
 import { Post } from "@/types";
@@ -21,6 +22,9 @@ export const getStaticProps: GetStaticProps = async () => {
 const Page = ({ posts }: { posts: Post[] }) => {
   return (
     <>
+      <Head>
+        <title>New Posts | Osin.</title>
+      </Head>
       <Header />
       <div className="flex flex-col items-center pt-16">
         <p className="mb-8 text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500">
