@@ -1,0 +1,119 @@
+import PostLayout from "@/components/posts/PostLayout"
+import TwitterButton from "@/components/posts/TwitterButton"
+
+export const meta = {
+  title: 'TypeScript でバッチスクリプトを作る',
+  description: 'TypeScript で書いた ESModule を ts-node で実行して、簡単なバッチスクリプトを開発する際の効率をあげようという試みです。',
+  createdAt: '2022-07-20',
+  emoji: '🛴 ',
+  categories: ['TypeScript'],
+}
+
+# TypeScript でバッチスクリプトを作る
+
+**📍 Point**
+1. `ts-node-esm` を使って実行する。
+2. `nodemon` を導入してコードの変更を監視して、自動で再起動する。
+
+## プロジェクトの設定
+
+まず、プロジェクトのディレクトリを作り、必要なパッケージをインストールします。
+
+```
+mkdir project
+cd project
+yarn init -y
+yarn add -D ts-node typescript tsc
+```
+
+`tsconfig.json` を用意します。
+
+```json
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "es6",
+    "lib": ["es2022"],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "moduleResolution": "node",
+    "baseUrl": "src",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules"],
+  "compileOnSave": false
+}
+```
+
+`package.json` を修正します。
+
+```json
+{
+  ...,
+  "type": "module",
+  ...
+}
+```
+
+次に、 `src/index.ts` を作成します。
+
+```ts
+import foo from "./foo";
+
+foo();
+```
+
+例えば、 `src/foo.ts` は、このようなコードを想定しています。
+
+```ts
+export const foo = () => {
+  console.log("bar")
+}
+```
+
+## ts-node-esm を使って、 ESModule を実行する
+
+ESModule を ts-node で実行するには、 ts-node-esm を使います。  
+下記のコマンドを実行すると、コンソールに「bar」と出力されるはずです。
+
+```
+yarn ts-node-esm ./src/index.ts
+```
+
+## nodemon でコードの変更を監視して、自動で再起動する。
+
+`nodemon.json` を作成します。
+
+```json
+{
+  "watch": ["src"],
+  "ext": "ts",
+  "exec": "yarn ts-node-esm ./src/index.ts"
+}
+```
+
+これで、`src` 配下の `ts` ファイルを更新すると、自動的に `yarn ts-node-esm ./src/index.ts` というコマンドが走るようになりました。
+
+`yarn nodemon` で実行できます。
+
+```
+yarn nodemon
+```
+
+## おわりに
+
+TypeScript を使って、簡単なバッチスクリプトを作りたいときは、いつもこの構成で開発しています。  
+コードを変更するたびに再ビルド、再実行する必要がないので、現状とても快適です。
+
+ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
+
+<TwitterButton />
+
+export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
