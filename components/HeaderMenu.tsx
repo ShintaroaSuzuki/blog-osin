@@ -16,7 +16,7 @@ const HeaderMenu = ({
     <div className="fixed z-20 w-full top-2 px-2 flex flex-col items-end">
       <AnimatePresence>
         <motion.div
-          className="w-full bg-slate-100 flex flex-row justify-between px-4 py-2 rounded-md origin-top-right"
+          className="w-full bg-slate-800 flex flex-row justify-between px-4 py-2 rounded-md origin-top-right drop-shadow-lg"
           initial="closed"
           animate="open"
           exit="closed"
@@ -25,17 +25,17 @@ const HeaderMenu = ({
         >
           <nav className="flex flex-col w-full my-2">
             <Link href="/new-posts">
-              <a className="text-slate-900 hover:text-base-700 py-2">
+              <a className="text-slate-100 hover:text-slate-300 py-2">
                 New Posts
               </a>
             </Link>
             <Link href="/categories">
-              <a className="text-slate-900 hover:text-base-700 py-2">
+              <a className="text-slate-100 hover:text-slate-300 py-2">
                 Categories
               </a>
             </Link>
             <Link href="/about-me">
-              <a className="text-slate-900 hover:text-base-700 py-2">
+              <a className="text-slate-100 hover:text-slate-300 py-2">
                 About Me
               </a>
             </Link>
@@ -48,7 +48,7 @@ const HeaderMenu = ({
               viewBox="0 0 24 24"
               width="24"
               height="24"
-              stroke={"rgba(55, 55, 55, 0.9)"}
+              stroke={"rgb(241, 245, 249)"}
             >
               <path
                 strokeLinecap="round"

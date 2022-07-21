@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import PostItem from "@/components/PostItem";
 
 const getPosts = (allPosts: Post[]): Post[] => {
-  return allPosts.slice(0, 5);
+  return allPosts.slice(0, 10);
 };
 
 export const getStaticProps: GetStaticProps = async () => {
