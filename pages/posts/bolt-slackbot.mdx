@@ -29,7 +29,7 @@ export const meta = {
 ```shell
 mkdir project-name
 cd project-name
-yarn init -y        # もしくは npm init
+yarn init -y                # もしくは npm init
 yarn add @slack/bolt        # もしくは npm install @slack/bolt
 ```
 
@@ -108,10 +108,12 @@ main();
 Hello!
 ```
 
-デプロイの際は、クラウドコンテナやサーバーレスファンクションなどの適当なサービスにデプロイし、そのエンドポイントをスラッシュコマンドの `Request URL` に設定し直してください。また、 `/slack/events` のパスを指定することを忘れないようにしてください。
+デプロイの際は、クラウドコンテナやサーバーレスファンクションなどの適当なサービスにデプロイし、そのエンドポイントをスラッシュコマンドの `Redirect URL` に設定し直してください。また、 `/slack/events` のパスを指定することを忘れないようにしてください。
 
 ## おわりに
-`app.ts` の中身を書き換えて、もっとリッチなスラッシュコマンドを作成したいです。
+`app.ts` の中身を書き換えて、もっとリッチなスラッシュコマンドを作成したいです。  
+ソースコードはこちらです。  
+[ShintaroaSuzuki/bolt-test-2](https://github.com/ShintaroaSuzuki/bolt-test-2)
 
 ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
 
