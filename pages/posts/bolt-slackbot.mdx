@@ -1,0 +1,120 @@
+import PostLayout from "@/components/posts/PostLayout"
+import TwitterButton from "@/components/posts/TwitterButton"
+
+export const meta = {
+  title: 'Bolt で Slack Bot を作る',
+  description: 'Bolt で 簡単な Slack Bot を作ります。「/hello」というスラッシュコマンドを作成します。',
+  createdAt: '2022-08-02',
+  emoji: '🦜 ',
+  categories: ['slack bot'],
+}
+
+# Bolt で Slack Bot を作る
+
+**📍 Point**
+1. 開発環境で ngrok を使う
+2. Redirect URL のパスに注意する
+
+## Slack アプリの作成
+
+[Slack API のアプリ管理画面](https://api.slack.com/apps) から、新しいアプリを作成します。  
+`From scratch` を選択してください。
+
+`OAuth & Permissions` から、Bot のスコープに `chat:write` を追加してください。  
+その後、ワークスペースにアプリをインストールします。
+また、コマンドを実行したいチャンネルにアプリを招待しておきます。
+
+## プロジェクトの作成
+
+```shell
+mkdir project-name
+cd project-name
+yarn init -y        # もしくは npm init
+yarn add @slack/bolt        # もしくは npm install @slack/bolt
+```
+
+## `.env` ファイルの作成
+
+`Basic Information` から `Signing Secret` を、`OAuth & Permissions` から `Bot Token` をコピーし、`.env` ファイルに追加します。
+
+```
+SLACK_SIGNING_SECRET=<YOUR_SIGNING_SECRET>
+SLACK_BOT_TOKEN=<YOUR_BOT_TOKEN>
+```
+
+## ngrok の導入
+
+[ngrok](https://ngrok.com/) をダウンロードして、初期設定を行います。
+
+下記のコマンドで公開URLをを作成し、リクエストを開発環境にトンネリングすることができます。  
+ローカルの 8080 ポートにトンネリングする際の例です。
+
+```shell
+ngrok http 8080
+```
+
+## スラッシュコマンドの追加
+
+`Slash Commands` から、`/hello` というスラッシュコマンドを登録します。  
+Redirect URL には、先程 ngrok で作成した公開URLを指定します。
+なお、この際、`/slack/events` のパスを指定するようにしてください。
+
+## サーバーの実装
+
+コード自体の説明は割愛します。
+
+`app.ts`
+
+```ts
+import { App } from "@slack/bolt";
+import dotenv from "dotenv";
+dotenv.config();
+
+export class SlackBot {
+  private app;
+  constructor() {
+    this.app = new App({
+      token: process.env.SLACK_BOT_TOKEN,
+      signingSecret: process.env.SLACK_SIGNING_SECRET,
+    });
+  }
+  async start() {
+    this.app.command("/hello", async ({ command, ack, respond }) => {
+      await ack();
+      respond("Hello!");
+    });
+    this.app.start(8080);
+    console.log("⚡️ Bolt app is running!");
+  }
+}
+```
+
+`index.ts`
+
+```ts
+import { SlackBot } from "./app";
+
+const main = async () => {
+  const bot = new SlackBot();
+  await bot.start();
+};
+
+main();
+```
+
+`index.ts` を実行すると、スラッシュコマンドが使えるようになっているはずです。ボットを招待したチャンネルで `/hello` コマンドを実行すると、ボットから挨拶されるはずです。
+
+```
+Hello!
+```
+
+デプロイの際は、クラウドコンテナやサーバーレスファンクションなどの適当なサービスにデプロイし、そのエンドポイントをスラッシュコマンドの `Request URL` に設定し直してください。また、 `/slack/events` のパスを指定することを忘れないようにしてください。
+
+## おわりに
+`app.ts` の中身を書き換えて、もっとリッチなスラッシュコマンドを作成したいです。
+
+ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
+
+<TwitterButton />
+
+export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
