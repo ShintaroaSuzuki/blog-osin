@@ -1,0 +1,49 @@
+import PostLayout from "@/components/posts/PostLayout"
+import TwitterButton from "@/components/posts/TwitterButton"
+
+export const meta = {
+  title: 'Fluent Emoji を Slack に導入する',
+  description: 'オープンソース化された Microsoft の Fluent Emoji を一括で Slack にインストールできます。',
+  createdAt: '2022-08-29',
+  emoji: '👍 ',
+  categories: ['slack', 'shell'],
+}
+
+# Fluent Emoji を Slack に導入する
+
+**📍 Point**
+1. シェルスクリプトでアップロードの準備をする
+2. Chrome 拡張を使って一括で絵文字を追加する
+
+## シェルスクリプトでアップロードの準備をする
+
+GitHub から Fluent Emoji のリポジトリをダウンロードします。
+
+```
+git clone git@github.com:microsoft/fluentui-emoji.git
+```
+
+シェルスクリプトでアップロードの準備をします。  
+`png` というフォルダを作り、絵文字のファイルをすべて、そのフォルダ内に複製します。
+
+
+```
+find . -name '*.png' -type f | xargs -I {} cp {} png
+```
+
+
+## Chrome 拡張を追加して、絵文字を一括で追加する
+
+[Nertral Face Emoji Tools](https://chrome.google.com/webstore/detail/neutral-face-emoji-tools/anchoacphlfbdomdlomnbbfhcmcdmjej) を Chrome に追加します。
+
+その後、 『ワークスペースのカスタマイズ』を開き、`png` フォルダ内の画像をドラッグアンドドロップすると、絵文字を一括で追加できます。
+
+## おわりに
+
+良い Slack ライフを！
+
+ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
+
+<TwitterButton />
+
+export default ({ children }) => <PostLayout meta={meta}>{children}</PostLayout>
