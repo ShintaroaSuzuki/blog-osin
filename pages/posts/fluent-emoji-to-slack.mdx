@@ -1,5 +1,6 @@
 import PostLayout from "@/components/posts/PostLayout"
 import TwitterButton from "@/components/posts/TwitterButton"
+import Image from "next/Image"
 
 export const meta = {
   title: 'Fluent Emoji を Slack に導入する',
@@ -36,11 +37,17 @@ find . -name '*.png' -type f | xargs -I {} cp {} png
 
 [Nertral Face Emoji Tools](https://chrome.google.com/webstore/detail/neutral-face-emoji-tools/anchoacphlfbdomdlomnbbfhcmcdmjej) を Chrome に追加します。
 
-その後、 『ワークスペースのカスタマイズ』を開き、`png` フォルダ内の画像をドラッグアンドドロップすると、絵文字を一括で追加できます。
+その後、 『ワークスペースのカスタマイズ』を開きます。
+
+<img src="/posts/fluent-emoji-to-slack_1.webp" />
+
+`png` フォルダ内のファイルをドラッグ・アンド・ドロップしたら Slack に一括で絵文字を追加できます。
+
+<img src="/posts/fluent-emoji-to-slack_2.webp" />
 
 ## おわりに
 
-良い Slack ライフを！
+素敵な Slack ライフを！
 
 ご質問・ご意見等は下記のTwitterアカウントにいただけると幸いです。
 
