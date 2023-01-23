@@ -35,7 +35,7 @@ const getCategoryName = async (
 
 export const getStaticPaths: GetStaticPaths<PathParams> = async () => {
   const categories = await getCategory();
-  const categoryPaths = await getCategoryPaths(categories);
+  const categoryPaths = getCategoryPaths(categories);
   return { paths: categoryPaths, fallback: false };
 };
 

@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { GetStaticProps } from "next";
+import { Fragment } from "react";
 import { getAllPosts } from "@/lib/getData";
 import { Post } from "@/types";
 import Header from "@/components/Header";
@@ -32,7 +33,9 @@ const Page = ({ posts }: { posts: Post[] }) => {
         </p>
         <div className="w-3/4 flex flex-col items-center gap-y-8 min-h-screen">
           {posts.map((post, i) => (
-            <PostItem key={`post_${i}`} post={post} />
+            <Fragment key={post.title}>
+              <PostItem post={post} />
+            </Fragment>
           ))}
         </div>
         <Footer />
