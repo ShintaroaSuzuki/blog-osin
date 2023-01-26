@@ -1,17 +1,27 @@
 import Link from "next/link";
-import { useState, useCallback } from "react";
-import HeaderMenu from "@/components/HeaderMenu";
+import { Fragment } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import HamburgerIcon from "./HamburgerIcon";
+import CloseIcon from "./CloseIcon";
+
+const MenuItems = [
+  {
+    name: "New Posts",
+    path: "/new-posts",
+  },
+  {
+    name: "Categories",
+    path: "/categories",
+  },
+  {
+    name: "About Me",
+    path: "/about-me",
+  },
+] as const;
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleMenu = useCallback(() => {
-    setIsOpen(!isOpen);
-  }, [isOpen]);
-
   return (
     <header className="w-screen fixed z-10">
-      {isOpen && <HeaderMenu handleMenu={handleMenu} />}
       <div className="flex w-full justify-between items-center px-6 h-12 bg-slate-900 bg-opacity-100 backdrop-blur-sm">
         <Link href="/" passHref>
           <div className="flex flex-row items-center gap-x-1.5">
@@ -25,21 +35,37 @@ const Header = () => {
             <p className="font-bold">Osin.</p>
           </div>
         </Link>
-        <svg
-          onClick={handleMenu}
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M4 8h16M4 16h16"
-          />
-        </svg>
+        <Menu as={Fragment}>
+          <Menu.Button>
+            {({ open }) => (open ? <CloseIcon /> : <HamburgerIcon />)}
+          </Menu.Button>
+          <div className="fixed z-20 w-full top-14 pl-4 pr-8 flex flex-col left-0">
+            <Transition
+              as="div"
+              className="w-full bg-slate-800 flex flex-row justify-between px-2 py-2 rounded-md origin-top-right drop-shadow-lg"
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items className="w-full">
+                <nav className="flex flex-col w-full my-2">
+                  {MenuItems.map((item) => (
+                    <Menu.Item key={item.name}>
+                      <Link href={item.path}>
+                        <a className="text-slate-100 hover:text-slate-300 hover:bg-slate-700 p-2 w-full rounded">
+                          {item.name}
+                        </a>
+                      </Link>
+                    </Menu.Item>
+                  ))}
+                </nav>
+              </Menu.Items>
+            </Transition>
+          </div>
+        </Menu>
       </div>
     </header>
   );
