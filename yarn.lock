@@ -4490,6 +4490,11 @@ remark-rehype@^10.0.0:
     mdast-util-to-hast "^12.1.0"
     unified "^10.0.0"
 
+remeda@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/remeda/-/remeda-1.6.0.tgz#37dd182cb9be170bc800ef81b4aee13d1718f714"
+  integrity sha512-2NBGJZrwWeqAY+Tzo66FyBYyW0CmMFh0tCg97T8G76krXmI45j/EK1oy+5WYrl2j7oPbgRkN6loGIiliiquvxg==
+
 remote-origin-url@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/remote-origin-url/-/remote-origin-url-1.0.0.tgz#add020aa5f1a0b37372858e02b323dc28d4cd030"
