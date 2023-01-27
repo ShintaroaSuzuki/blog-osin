@@ -26,15 +26,12 @@ export const getCategory = async () => {
         module.meta.categories.forEach((category: string) => {
             const categoryName = category;
             const categoryPath = categoryToPathname(categoryName);
-            let categoryExists = false;
-            for (let i = 0; i < categories.length; i++) {
-                if (categories[i].categoryName === categoryName) {
-                    categories[i].articleCount++;
-                    categoryExists = true;
-                    break;
-                }
-            }
-            if (!categoryExists) {
+            const existedCategory = categories.find(
+                (category) => category.categoryName === categoryName
+            );
+            if (existedCategory !== undefined) {
+                existedCategory.articleCount++;
+            } else {
                 categories.push({
                     categoryName,
                     categoryPath,
